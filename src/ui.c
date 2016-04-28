@@ -114,17 +114,17 @@ static void draw_friend(int x, int y, int w, int height){
     setfont(FONT_TITLE);
 
     if (f->alias) {
-        drawtextrange(MAIN_LEFT + UTOX_SCALE(30 ), utox_window_width - UTOX_SCALE(64 ), UTOX_SCALE(9 ), f->alias, f->alias_length);
+        drawtextrange(MAIN_LEFT + SCALE(60), settings.window_width - SCALE(128), SCALE(18), f->alias, f->alias_length);
     } else {
-        drawtextrange(MAIN_LEFT + UTOX_SCALE(30 ), utox_window_width - UTOX_SCALE(64 ), UTOX_SCALE(9 ), f->name, f->name_length);
+        drawtextrange(MAIN_LEFT + SCALE(60), settings.window_width - SCALE(128), SCALE(18), f->name, f->name_length);
     }
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(MAIN_LEFT + UTOX_SCALE(30 ), utox_window_width - UTOX_SCALE(64 ), UTOX_SCALE(16 ), f->status_message, f->status_length);
+    drawtextrange(MAIN_LEFT + SCALE(60), settings.window_width - SCALE(128), SCALE(32), f->status_message, f->status_length);
 
     if (f->typing) {
-        int typing_y = ((y + height) + CHAT_BOX_TOP - UTOX_SCALE(7 ));
+        int typing_y = ((y + height) + CHAT_BOX_TOP - SCALE(14));
         setfont(FONT_MISC);
         // @TODO: separate these colors if needed
         setcolor(COLOR_MAIN_HINTTEXT);
@@ -140,11 +140,11 @@ static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
 
     setcolor(COLOR_MAIN_TEXT);
     setfont(FONT_TITLE);
-    drawtextrange(MAIN_LEFT + UTOX_SCALE(30 ), utox_window_width - UTOX_SCALE(32 ), UTOX_SCALE(1 ), g->name, g->name_length);
+    drawtextrange(MAIN_LEFT + SCALE(60 ), settings.window_width - SCALE(64), SCALE(2), g->name, g->name_length);
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(MAIN_LEFT + UTOX_SCALE(30 ), utox_window_width - UTOX_SCALE(32 ), UTOX_SCALE(8 ), g->topic, g->topic_length);
+    drawtextrange(MAIN_LEFT + SCALE(60 ), settings.window_width - SCALE(64), SCALE(16), g->topic, g->topic_length);
 
     uint32_t i = 0;
     int k = MAIN_LEFT + UTOX_SCALE(30 );
@@ -168,7 +168,7 @@ static void draw_group(int UNUSED(x), int UNUSED(y), int UNUSED(w), int UNUSED(h
                 setcolor(COLOR_GROUP_PEER);
             }
 
-            if (k + w >= (utox_window_width - UTOX_SCALE(32 ))) {
+            if (k + w >= (settings.window_width - UTOX_SCALE(32 ))) {
                 if (pos_y == 15) {
                     pos_y += 6;
                     k = MAIN_LEFT + UTOX_SCALE(30 );
@@ -196,7 +196,7 @@ static void draw_friend_request(int UNUSED(x), int UNUSED(y), int UNUSED(w), int
 
     setcolor(COLOR_MAIN_SUBTEXT);
     setfont(FONT_STATUS);
-    drawtextrange(MAIN_LEFT + UTOX_SCALE(5 ), utox_window_width, UTOX_SCALE(20 ), req->msg, req->length);
+    drawtextrange(MAIN_LEFT + UTOX_SCALE(5 ), settings.window_width, UTOX_SCALE(20 ), req->msg, req->length);
 }
 
 /* Draw add a friend window */
@@ -254,7 +254,7 @@ static void draw_add_friend(int UNUSED(x), int UNUSED(y), int UNUSED(w), int hei
             str = SPTR(REQ_UNKNOWN); break;
         }
 
-        utox_draw_text_multiline_compat(MAIN_LEFT + UTOX_SCALE(5), utox_window_width - BM_SBUTTON_WIDTH - UTOX_SCALE(5 ), MAIN_TOP + UTOX_SCALE(83), 0, height, font_small_lineheight, str->str, str->length, 0xFFFF, 0, 0, 0, 1);
+        utox_draw_text_multiline_compat(MAIN_LEFT + UTOX_SCALE(5), settings.window_width - BM_SBUTTON_WIDTH - UTOX_SCALE(5 ), MAIN_TOP + UTOX_SCALE(83), 0, height, font_small_lineheight, str->str, str->length, 0xFFFF, 0, 0, 0, 1);
     }
 }
 
@@ -330,6 +330,7 @@ static void draw_settings_text_ui(int x, int y, int w, int UNUSED(height)){
     drawstr(MAIN_LEFT + SCALE(150), y + SCALE(110), START_IN_TRAY);
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(160), AUTO_STARTUP);
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(210), SEND_TYPING_NOTIFICATIONS);
+    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(260), SETTINGS_UI_MINI_ROSTER);
 }
 
 static void draw_settings_text_av(int x, int y, int w, int UNUSED(height)){
@@ -776,6 +777,7 @@ panel_main = {
                     (void*)&dropdown_close_to_tray, (void*)&dropdown_start_in_tray,
                     (void*)&dropdown_auto_startup,
                     (void*)&dropdown_typing_notes,
+                    (void*)&dropdown_mini_roster,
                     NULL
                 }
             },
@@ -1102,10 +1104,71 @@ void ui_set_scale(uint8_t scale) {
 
     /* Drop down structs */
         setfont(FONT_TEXT);
+        /* Profile dropdowns */
+        /* Network page dropdows */
+        /* A/V settings page dropdowns */
+       /* User Interface drops */
+            PANEL d_theme = {
+                .type   = PANEL_DROPDOWN,
+                .x      = SCALE(10),
+                .y      = SCALE(30),
+                .height = SCALE(24),
+                .width  = SCALE(120)
+            },
+            d_dpi = {
+                .type   = PANEL_DROPDOWN,
+                .x      = SCALE(150),
+                .y      = SCALE(30),
+                .height = SCALE(24),
+                .width  = SCALE(200)
+            },
+            d_logging = {
+                .type   = PANEL_DROPDOWN,
+                .x      = SCALE(10),
+                .y      = SCALE(80),
+                .height = SCALE(24),
+                .width  = SCALE(40  )
+            },
+            d_close_to_tray = {
+                .type   = PANEL_DROPDOWN,
+                .x      = SCALE(10),
+                .y      = SCALE(130),
+                .height = SCALE(24),
+                .width  = SCALE(40)
+            },
+            d_start_in_tray = {
+                .type   = PANEL_DROPDOWN,
+                .x      = SCALE(150),
+                .y      = SCALE(130),
+                .height = SCALE(24),
+                .width  = SCALE(40)
+            },
+            d_auto_startup = {
+                .type   = PANEL_DROPDOWN,
+                .x      = SCALE(10),
+                .y      = SCALE(180),
+                .height = SCALE(24),
+                .width  = SCALE(40)
+            },
+            d_typing_notes = {
+                .type   = PANEL_DROPDOWN,
+                .x      = SCALE(10),
+                .y      = SCALE(230),
+                .height = SCALE(24),
+                .width  = SCALE(40)
+            },
+            d_mini_roster = {
+                .type   = PANEL_DROPDOWN,
+                .x      = SCALE(10),
+                .y      = SCALE(280),
+                .height = SCALE(24),
+                .width  = SCALE(40)
+            };
 
+        /* Unsorted */
         PANEL d_notifications = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
+            .x      = SCALE(10),
             .y      = UTOX_SCALE(15  ),
             .height = UTOX_SCALE(12  ),
             .width  = UTOX_SCALE(20  )
@@ -1118,7 +1181,6 @@ void ui_set_scale(uint8_t scale) {
             .height = UTOX_SCALE(12 ),
             .width  = UTOX_SCALE(20 )
         },
-
         #ifdef AUDIO_FILTERING
         d_audio_filtering = {
             .type   = PANEL_DROPDOWN,
@@ -1153,14 +1215,6 @@ void ui_set_scale(uint8_t scale) {
             .width  = SCALE(360)
         },
 
-        d_dpi = {
-            .type   = PANEL_DROPDOWN,
-            .x      = SCALE(150),
-            .y      = SCALE( 30),
-            .height = SCALE( 24),
-            .width  = SCALE(200)
-        },
-
         d_language = {
             .type   =  PANEL_DROPDOWN,
             .x      =  SCALE( 10),
@@ -1193,54 +1247,6 @@ void ui_set_scale(uint8_t scale) {
             .width  = UTOX_SCALE(20  )
         },
 
-        d_logging = {
-            .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(39  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
-        },
-
-        d_theme = {
-            .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(15  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(60  )
-        },
-
-        d_close_to_tray = {
-            .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(63  ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
-        },
-
-        d_start_in_tray = {
-            .type   = PANEL_DROPDOWN,
-            .x      = SCALE(150),
-            .y      = SCALE(126),
-            .height = SCALE( 24),
-            .width  = SCALE( 40)
-        },
-
-        d_auto_startup = {
-            .type   = PANEL_DROPDOWN,
-            .x      = SCALE( 10),
-            .y      = SCALE(175),
-            .height = SCALE( 24),
-            .width  = SCALE( 40)
-        },
-
-        d_typing_notes = {
-            .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(114 ),
-            .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
-        },
-
         d_friend_autoaccept = {
             .type   = PANEL_DROPDOWN,
             .x      = UTOX_SCALE(5   ),
@@ -1265,12 +1271,14 @@ void ui_set_scale(uint8_t scale) {
         dropdown_start_in_tray.panel = d_start_in_tray;
         dropdown_theme.panel = d_theme;
         dropdown_auto_startup.panel = d_auto_startup;
-        dropdown_friend_autoaccept_ft.panel = d_friend_autoaccept;
 
         #ifdef AUDIO_FILTERING
-        dropdown_audio_filtering.panel = d_audio_filtering;
+            dropdown_audio_filtering.panel = d_audio_filtering;
         #endif
-        dropdown_typing_notes.panel = d_typing_notes;
+
+        dropdown_typing_notes.panel         = d_typing_notes;
+        dropdown_mini_roster.panel          = d_mini_roster;
+        dropdown_friend_autoaccept_ft.panel = d_friend_autoaccept;
 
     /* Text entry boxes */
         PANEL e_name = {
