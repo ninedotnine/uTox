@@ -6,7 +6,9 @@ get() {
 }
 
 sudo apt-get update
-sudo apt-get install yasm check libopenal-dev libdbus-1-dev libv4l-dev
+sudo apt-get install yasm check libopenal-dev libdbus-1-dev libv4l-dev binutils-mingw-w64-i686
+
+export CC=gcc-mingw-w64-i686
 
 #installing libsodium, needed for Core
 
