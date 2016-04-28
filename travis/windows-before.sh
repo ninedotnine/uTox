@@ -6,7 +6,7 @@ get() {
 }
 
 sudo apt-get update
-sudo apt-get install yasm check libopenal-dev libdbus-1-dev libv4l-dev binutils-mingw-w64-i686
+sudo apt-get install yasm check libopenal-dev libdbus-1-dev libv4l-dev mingw64-x-gcc
 
 export CC=gcc-mingw-w64-i686
 
