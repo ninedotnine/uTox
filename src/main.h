@@ -75,7 +75,7 @@
  * When ever you see UTOX_SCALE(x) double the size, and use SCALE instead!           */
 #define UTOX_SCALE(x) (((int)((ui_scale * 2.0 / 10.0) * ((double)x) )) ? : 1)
 #define      SCALE(x) (((int)((ui_scale / 10.0)       * ((double)x) )) ? : 1)
-#define     FSCALE(x) ((      (ui_scale / 10.0) *       ((double)x) )  ? : 1)
+#define     FSCALE(x) (((double)((ui_scale / 10.0)    * ((double)x) )) ? : 1)
 
 /* House keeping for uTox save file. */
 #define SAVE_VERSION 3
