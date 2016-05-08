@@ -14,6 +14,7 @@ extern DROPDOWN dropdown_dpi,
                 dropdown_push_to_talk,
                 dropdown_typing_notes,
                 dropdown_mini_roster,
+                dropdown_narrow_roster,
                 dropdown_friend_autoaccept_ft;
 
 //List-based dropdowns. list_dropdown_* functions are applicable.

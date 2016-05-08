@@ -142,6 +142,7 @@ typedef struct utox_settings {
     _Bool video_preview;
     _Bool send_typing_status;
     _Bool use_mini_roster;
+    _Bool use_narrow_roster;
 
     uint8_t verbose;
 

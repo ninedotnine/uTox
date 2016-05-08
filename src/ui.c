@@ -55,7 +55,8 @@ void draw_avatar_image(UTOX_NATIVE_IMAGE *image, int x, int y, uint32_t width, u
 static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int UNUSED(height)){
     if (tox_thread_init) {
         /* Only draw the user badge if toxcore is running */
-        /*draw avatar or default image */
+
+        /* draw avatar or default image */
         if (self_has_avatar()) {
             draw_avatar_image(self.avatar.image, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP,
                               self.avatar.width, self.avatar.height, BM_CONTACT_WIDTH, BM_CONTACT_WIDTH);
@@ -63,25 +64,27 @@ static void draw_user_badge(int UNUSED(x), int UNUSED(y), int UNUSED(width), int
             drawalpha(BM_CONTACT, SIDEBAR_AVATAR_LEFT, SIDEBAR_AVATAR_TOP,
                       BM_CONTACT_WIDTH, BM_CONTACT_WIDTH, COLOR_MENU_TEXT);
         }
-        /* Draw name */
-        setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_SUBTEXT);
-        setfont(FONT_SELF_NAME);
-        drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_NAME_WIDTH * 1.5, SIDEBAR_NAME_TOP, self.name, self.name_length);
 
-        /*&Draw current status message
-        @TODO: separate these colors if needed (COLOR_MAIN_HINTTEXT) */
-        setcolor(!button_statusmsg.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
-        setfont(FONT_STATUS);
-        drawtextrange(SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_WIDTH * 1.5, SIDEBAR_STATUSMSG_TOP,
-                      self.statusmsg, self.statusmsg_length);
+        if (!settings.use_narrow_roster) {
+            /* Draw name */
+            setcolor(!button_name.mouseover ? COLOR_MENU_TEXT : COLOR_MENU_SUBTEXT);
+            setfont(FONT_SELF_NAME);
+            drawtextrange(SIDEBAR_NAME_LEFT, SIDEBAR_NAME_WIDTH * 1.5, SIDEBAR_NAME_TOP, self.name, self.name_length);
 
-        /* Draw status button icon */
-        drawalpha(BM_STATUSAREA, SELF_STATUS_ICON_LEFT, SELF_STATUS_ICON_TOP, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT,
-                  button_status.mouseover ? COLOR_BACKGROUND_LIST_HOVER : COLOR_BACKGROUND_LIST);
-        uint8_t status = tox_connected ? self.status : 3;
-        drawalpha(BM_ONLINE + status, SELF_STATUS_ICON_LEFT + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2,
-                  SELF_STATUS_ICON_TOP + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH,
-                  status_color[status]);
+            /* Draw current status message */
+            setcolor(!button_statusmsg.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
+            setfont(FONT_STATUS);
+            drawtextrange(SIDEBAR_STATUSMSG_LEFT, SIDEBAR_STATUSMSG_WIDTH * 1.5, SIDEBAR_STATUSMSG_TOP,
+                          self.statusmsg, self.statusmsg_length);
+            /* Draw status button icon */
+            drawalpha(BM_STATUSAREA, SELF_STATUS_ICON_LEFT, SELF_STATUS_ICON_TOP, BM_STATUSAREA_WIDTH, BM_STATUSAREA_HEIGHT,
+                      button_status.mouseover ? COLOR_BACKGROUND_LIST_HOVER : COLOR_BACKGROUND_LIST);
+            uint8_t status = tox_connected ? self.status : 3;
+            drawalpha(BM_ONLINE + status, SELF_STATUS_ICON_LEFT + BM_STATUSAREA_WIDTH / 2 - BM_STATUS_WIDTH / 2,
+                      SELF_STATUS_ICON_TOP + BM_STATUSAREA_HEIGHT / 2 - BM_STATUS_WIDTH / 2, BM_STATUS_WIDTH, BM_STATUS_WIDTH,
+                      status_color[status]);
+        }
+
 
         /* Draw online/all friends filter text. */
         setcolor(!button_filter_friends.mouseover ? COLOR_MENU_SUBTEXT : COLOR_MAIN_HINTTEXT);
@@ -280,7 +283,8 @@ static void draw_settings_header(int UNUSED(x), int UNUSED(y), int w, int UNUSED
                                     tox_version_major(),   tox_version_minor(),   tox_version_patch(),
                                     toxav_version_major(), toxav_version_minor(), toxav_version_patch(),
                                     toxes_version_major(), toxes_version_minor(), toxes_version_patch());
-        drawtextwidth_right(w, textwidth((char_t*)version_string, count), SCALE(10), (uint8_t*)version_string, strlen(version_string));
+        drawtextwidth_right(w, textwidth((char_t*)version_string, count), SCALE(10),
+                            (uint8_t*)version_string, strlen(version_string));
     #endif
 }
 
@@ -327,6 +331,7 @@ static void draw_settings_text_ui(int x, int y, int w, int UNUSED(height)){
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(160), AUTO_STARTUP);
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(210), SEND_TYPING_NOTIFICATIONS);
     drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(260), SETTINGS_UI_MINI_ROSTER);
+    drawstr(MAIN_LEFT + SCALE( 10), y + SCALE(310), SETTINGS_UI_NARROW_ROSTER);
 }
 
 static void draw_settings_text_av(int x, int y, int w, int UNUSED(height)){
@@ -502,7 +507,8 @@ panel_side_bar = {
     .disabled = 0,
     .child = (PANEL*[]) {
         &panel_self,
-        &panel_quick_buttons,
+        &panel_self_narrow,
+        &panel_left_buttons,
         &panel_roster,
         NULL
     }
@@ -518,8 +524,17 @@ panel_side_bar = {
             NULL
         }
     },
+    panel_self_narrow = {
+        .type     = PANEL_NONE,
+        .disabled = 0,
+        .drawfunc = draw_user_badge,
+        .child    = (PANEL*[]) {
+            (void*)&button_avatar,
+            NULL
+        }
+    },
     /* Left sided toggles */
-    panel_quick_buttons = {
+    panel_left_buttons = {
         .type     = PANEL_NONE,
         .disabled = 0,
         .child    = (PANEL*[]) {
@@ -774,6 +789,7 @@ panel_main = {
                     (void*)&dropdown_auto_startup,
                     (void*)&dropdown_typing_notes,
                     (void*)&dropdown_mini_roster,
+                    (void*)&dropdown_narrow_roster,
                     NULL
                 }
             },
@@ -1123,7 +1139,7 @@ void ui_set_scale(uint8_t scale) {
                 .x      = SCALE(10),
                 .y      = SCALE(80),
                 .height = SCALE(24),
-                .width  = SCALE(40  )
+                .width  = SCALE(40)
             },
             d_close_to_tray = {
                 .type   = PANEL_DROPDOWN,
@@ -1159,6 +1175,13 @@ void ui_set_scale(uint8_t scale) {
                 .y      = SCALE(280),
                 .height = SCALE(24),
                 .width  = SCALE(40)
+            },
+            d_narrow_roster = {
+                .type   = PANEL_DROPDOWN,
+                .x      = SCALE(10),
+                .y      = SCALE(330),
+                .height = SCALE(24),
+                .width  = SCALE(40)
             };
 
         /* Unsorted */
@@ -1167,7 +1190,7 @@ void ui_set_scale(uint8_t scale) {
             .x      = SCALE(10),
             .y      = UTOX_SCALE(15  ),
             .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
+            .width  = SCALE(40)
         },
 
         d_push_to_talk = {
@@ -1183,7 +1206,7 @@ void ui_set_scale(uint8_t scale) {
             .x      = UTOX_SCALE(120 ),
             .y      = UTOX_SCALE(15  ),
             .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
+            .width  = SCALE(40)
         },
         #endif
 
@@ -1221,8 +1244,8 @@ void ui_set_scale(uint8_t scale) {
 
         d_proxy = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
-            .y      = UTOX_SCALE(40  ),
+            .x      = SCALE(10),
+            .y      = SCALE(80),
             .height = UTOX_SCALE(12  ),
             .width  = UTOX_SCALE(60  )
         },
@@ -1232,7 +1255,7 @@ void ui_set_scale(uint8_t scale) {
             .x      = UTOX_SCALE(24  ),
             .y      = UTOX_SCALE(13  ),
             .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
+            .width  = SCALE(40)
         },
 
         d_udp = {
@@ -1240,15 +1263,15 @@ void ui_set_scale(uint8_t scale) {
             .x      = UTOX_SCALE(74  ),
             .y      = UTOX_SCALE(13  ),
             .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
+            .width  = SCALE(40)
         },
 
         d_friend_autoaccept = {
             .type   = PANEL_DROPDOWN,
-            .x      = UTOX_SCALE(5   ),
+            .x      = SCALE(10),
             .y      = UTOX_SCALE(64  ),
             .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(20  )
+            .width  = SCALE(40)
         };
 
     /* Drop down panels */
@@ -1274,6 +1297,7 @@ void ui_set_scale(uint8_t scale) {
 
         dropdown_typing_notes.panel         = d_typing_notes;
         dropdown_mini_roster.panel          = d_mini_roster;
+        dropdown_narrow_roster.panel        = d_narrow_roster;
         dropdown_friend_autoaccept_ft.panel = d_friend_autoaccept;
 
     /* Text entry boxes */
@@ -1362,14 +1386,14 @@ void ui_set_scale(uint8_t scale) {
         e_proxy_port = {
             .type   = PANEL_EDIT,
             .x      = UTOX_SCALE(135 ),
-            .y      = UTOX_SCALE(40  ),
+            .y      = SCALE(80),
             .height = UTOX_SCALE(12  ),
-            .width  = UTOX_SCALE(30  )
+            .width  =  SCALE(60)
         },
 
         e_friend_alias = {
             .type   = PANEL_EDIT,
-            .x      = UTOX_SCALE(5   ),
+            .x      = SCALE(10),
             .y      = UTOX_SCALE(44  ),
             .height = UTOX_SCALE(12  ),
             .width  = -UTOX_SCALE(5 )

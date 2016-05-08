@@ -47,6 +47,11 @@ static void roster_draw_itembox(ITEM *i, int y) {
 static void roster_draw_name(ITEM *i, int y, char_t *name, char_t *msg, uint16_t name_length, uint16_t msg_length,
                      _Bool color_overide, uint32_t color)
 {
+
+    if (settings.use_narrow_roster) {
+        return;
+    }
+
     if (!color_overide) {
         color = (selected_item == i) ? COLOR_MAIN_TEXT : COLOR_LIST_TEXT;
     }
@@ -85,6 +90,13 @@ static void roster_draw_status_icon(uint8_t status, int y, _Bool notify) {
 
     int xpos   = SIDEBAR_WIDTH - SCALE(15) - BM_STATUS_WIDTH /2;
     int xpos_n = SIDEBAR_WIDTH - SCALE(15) - BM_STATUS_NOTIFY_WIDTH /2;
+
+    if (settings.use_narrow_roster) {
+        xpos   += SCALE(2);
+        xpos_n += SCALE(2);
+        y      += SCALE(8);
+        y_n    += SCALE(8);
+    }
 
     drawalpha(BM_ONLINE + status,     xpos,   y, BM_STATUS_WIDTH,        BM_STATUS_WIDTH,        status_color[status]);
     if (notify) {
@@ -370,7 +382,6 @@ static void show_page(ITEM *i) {
             break;
         } /* End of last case */
     } /* End of switch    */
-
 
     /* Now we activate/select the new page, and load stored data */
     switch (i->item) {

@@ -418,7 +418,7 @@ static void edit_search_onchange(EDIT *edit)
     char_t *data = edit->data;
     uint16_t length = edit->length;
 
-    if(length) {
+    if (length) {
         button_add_new_contact.panel.disabled = 0;
         button_add_new_contact.nodraw         = 0;
         button_settings.panel.disabled        = 1;

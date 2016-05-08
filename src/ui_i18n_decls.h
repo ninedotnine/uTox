@@ -124,6 +124,7 @@ enum {
 
     // Settings Strings
     STR_SETTINGS_UI_MINI_ROSTER,
+    STR_SETTINGS_UI_NARROW_ROSTER,
 
     // Status strings
     STR_NOT_CONNECTED,

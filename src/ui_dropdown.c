@@ -117,8 +117,28 @@ static void dropdown_typing_notes_onselect(const uint16_t i, const DROPDOWN* UNU
 }
 
 static void dropdown_mini_roster_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
+    if (settings.use_narrow_roster && !i) {
+        return;
+    }
+
     settings.use_mini_roster = !!i;
     roster_re_scale();
+}
+
+static void dropdown_narrow_roster_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
+    settings.use_narrow_roster  = !!i;
+
+    panel_self.disabled         = !!i;
+    panel_self_narrow.disabled  =  !i;
+
+    edit_search.panel.disabled  = 1;
+    button_filter_friends.panel.disabled = 1;
+
+    if (i) {
+        dropdown_mini_roster_onselect(i, NULL);
+    }
+
+    ui_set_scale(ui_scale);
 }
 
 static void dropdown_push_to_talk_onselect(const uint16_t i, const DROPDOWN* UNUSED(dm)) {
@@ -306,6 +326,13 @@ dropdown_typing_notes = {
 dropdown_mini_roster = {
     .ondisplay  = simple_dropdown_ondisplay,
     .onselect   = dropdown_mini_roster_onselect,
+    .dropcount  = countof(noyesdrops),
+    .userdata   = noyesdrops
+},
+
+dropdown_narrow_roster = {
+    .ondisplay  = simple_dropdown_ondisplay,
+    .onselect   = dropdown_narrow_roster_onselect,
     .dropcount  = countof(noyesdrops),
     .userdata   = noyesdrops
 },
