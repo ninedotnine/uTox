@@ -48,14 +48,16 @@ matrix:
       env: BUILD=windows SUDO=True
       sudo: required
       compiler: x86_64-w64-mingw32-gcc
+      before_install:
+        - sudo apt-get install mingw-w64-common/yakkety mingw-w64-x86-64-dev/yakkety mingw-w64-i686-dev/yakkety
       addons:
         apt:
           packages:
             - libopenal-dev
-            - mingw-w64
-            - mingw-w64-x86-64-dev
-            - mingw-w64-i686-dev
-            - binutils-mingw-w64
+            # - mingw-w64
+            # - mingw-w64-x86-64-dev
+            # - mingw-w64-i686-dev
+            # - binutils-mingw-w64
     - os: osx
       compiler: clang
       env: BUILD=osx
