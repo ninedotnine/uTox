@@ -49,7 +49,9 @@ matrix:
       sudo: required
       compiler: x86_64-w64-mingw32-gcc
       before_install:
-        - sudo apt-get install mingw-w64-common/yakkety mingw-w64-x86-64-dev/yakkety mingw-w64-i686-dev/yakkety
+        - sudo apt-get update
+        - sudo apt-get upgrade
+        - sudo apt-get install mingw-w64-common mingw-w64-x86-64-dev mingw-w64-i686-dev -t yakkety
       addons:
         apt:
           packages:
