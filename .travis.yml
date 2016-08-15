@@ -50,7 +50,7 @@ matrix:
       compiler: x86_64-w64-mingw32-gcc
       before_install:
         - sudo apt-get -y update
-        - sudo apt-get -y upgrade
+        - sudo apt-get -yq upgrade
         - sudo apt-get -y install mingw-w64-common mingw-w64-x86-64-dev mingw-w64-i686-dev -t yakkety
       addons:
         apt:
