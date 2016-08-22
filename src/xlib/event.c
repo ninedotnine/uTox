@@ -8,32 +8,73 @@ _Bool doevent(XEvent event)
     if (XFilterEvent(&event, None)) {
         return 1;
     }
-    if(event.xany.window && event.xany.window != window) {
+    if (event.xany.window && event.xany.window != window) {
 
         if (event.xany.window == tray_window) {
             tray_window_event(event);
             return 1;
         }
 
-        if(event.type == ClientMessage) {
-            XClientMessageEvent *ev = &event.xclient;
-            if((Atom)event.xclient.data.l[0] == wm_delete_window) {
-                if(ev->window == video_win[0]) {
-                    postmessage_utoxav(UTOXAV_STOP_VIDEO, 1, 0, NULL);
-                    return 1;
-                }
+        static int last_x, last_y, last_w, last_h, last_win;
+        static bool ignore;
 
-                int i;
-                for(i = 0; i != countof(friend); i++) {
-                    if(video_win[i + 1] == ev->window) {
-                        FRIEND *f = &friend[i];
-                        postmessage_utoxav(UTOXAV_STOP_VIDEO, f->number, 0, NULL);
-                        break;
+        switch (event.type) {
+            case ClientMessage: {
+                XClientMessageEvent *ev = &event.xclient;
+                if ((Atom)event.xclient.data.l[0] == wm_delete_window) {
+                    if (ev->window == video_win[0]) {
+                        postmessage_utoxav(UTOXAV_STOP_VIDEO, 1, 0, NULL);
+                        return 1;
+                    }
+
+                    int i;
+                    for (i = 0; i != countof(friend); i++) {
+                        if (video_win[i + 1] == ev->window) {
+                            FRIEND *f = &friend[i];
+                            postmessage_utoxav(UTOXAV_STOP_VIDEO, f->number, 0, NULL);
+                            break;
+                        }
+                    }
+                    if (i == countof(friend)) {
+                        debug("this should not happen\n");
                     }
                 }
-                if(i == countof(friend)) {
-                    debug("this should not happen\n");
+                break;
+            }
+            case ConfigureNotify: {
+                XConfigureEvent *ev = &event.xconfigure;
+                debug_error("AV resize %i %i %i %i \n", ev->x, ev->y, ev->width, ev->height);
+
+                if (ignore) {
+                    ignore = 0;
+                    break;
                 }
+
+                if (last_x > 10 && last_y > 10 && last_win == ev->window) {
+                    /* Force window ratio */
+                    if (ev->width - last_w > ev->height - last_h) {
+                        // debug_error("width  %i %i\n", last_w, last_h);
+                        //XResizeWindow(display, ev->window, ev->width, ev->width * 3 / 4);
+                    } else {
+                        // debug_error("height %i %i\n", last_w, last_h);
+                        //XResizeWindow(display, ev->window, ev->height * 4 / 3, ev->height);
+                    }
+                    ignore  = 1;
+                }
+
+                last_x   = ev->x;
+                last_y   = ev->y;
+                last_w   = ev->width;
+                last_h   = ev->height;
+                last_win = ev->window;
+
+
+                break;
+            }
+            case ResizeRequest: {
+                XResizeRequestEvent *ev = &event.xresizerequest;
+                debug_error("resize request %i %i %lu\n", ev->width, ev->height, ev->window);
+                XResizeWindow(display, ev->window, ev->width, ev->height);
             }
         }
 
@@ -83,7 +124,7 @@ _Bool doevent(XEvent event)
     case ConfigureNotify: {
         XConfigureEvent *ev = &event.xconfigure;
         if(settings.window_width != ev->width || settings.window_height != ev->height) {
-            // debug("resize\n");
+            debug("resize\n");
 
             if(ev->width > drawwidth || ev->height > drawheight) {
                 drawwidth = ev->width + 10;

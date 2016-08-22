@@ -36,7 +36,11 @@ SETTINGS settings = {
     .window_height          = 600,
     .window_width           = 800,
     .window_baseline        = 0,
+
+    .lock_av_ratio          = 1,
+
     .window_maximized       = 0,
+
     .group_notifications    = GNOTIFY_ALWAYS,
 };
 

@@ -150,38 +150,38 @@ typedef struct {
 } LOG_FILE_MSG_HEADER;
 
 volatile uint16_t loaded_audio_in_device, loaded_audio_out_device;
-_Bool             tox_connected;
+bool              tox_connected;
 
 /* Super global vars */
-volatile _Bool tox_thread_init, utox_av_ctrl_init, utox_audio_thread_init, utox_video_thread_init;
+volatile bool tox_thread_init, utox_av_ctrl_init, utox_audio_thread_init, utox_video_thread_init;
 
 typedef struct utox_settings {
     uint32_t curr_version;
     uint32_t last_version;
-    _Bool    show_splash;
+    bool     show_splash;
 
-    _Bool use_proxy;
-    _Bool force_proxy;
-    _Bool enable_udp;
-    _Bool enable_ipv6;
-    _Bool use_encryption;
-    _Bool portable_mode;
+    bool use_proxy;
+    bool force_proxy;
+    bool enable_udp;
+    bool enable_ipv6;
+    bool use_encryption;
+    bool portable_mode;
 
     uint16_t proxy_port;
 
-    _Bool close_to_tray;
-    _Bool logging_enabled;
-    _Bool ringtone_enabled;
-    _Bool audiofilter_enabled;
-    _Bool start_in_tray;
-    _Bool start_with_system;
-    _Bool push_to_talk;
-    _Bool audio_preview;
-    _Bool video_preview;
-    _Bool send_typing_status;
-    _Bool use_mini_roster;
-    _Bool inline_video;
-    _Bool use_long_time_msg;
+    bool close_to_tray;
+    bool logging_enabled;
+    bool ringtone_enabled;
+    bool audiofilter_enabled;
+    bool start_in_tray;
+    bool start_with_system;
+    bool push_to_talk;
+    bool audio_preview;
+    bool video_preview;
+    bool send_typing_status;
+    bool use_mini_roster;
+    bool inline_video;
+    bool use_long_time_msg;
 
     uint8_t verbose;
 
@@ -189,7 +189,9 @@ typedef struct utox_settings {
     uint32_t window_width;
     uint32_t window_baseline;
 
-    _Bool   window_maximized;
+    bool lock_av_ratio;
+
+    bool   window_maximized;
     uint8_t group_notifications;
 } SETTINGS;
 

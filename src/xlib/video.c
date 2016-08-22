@@ -55,9 +55,20 @@ void video_begin(uint32_t id, char_t *name, uint16_t name_length, uint16_t width
         return;
     }
 
-    *win = XCreateSimpleWindow(display, RootWindow(display, screen),
-                               0, 0, width, height, 0,
-                               BlackPixel(display, screen), WhitePixel(display, screen));
+    XSetWindowAttributes attrib = {
+        .background_pixel = WhitePixel(display, screen),
+        .border_pixel = BlackPixel(display, screen),
+        .event_mask = ExposureMask        | ButtonPressMask | ButtonReleaseMask | EnterWindowMask | LeaveWindowMask |
+                      StructureNotifyMask | KeyPressMask    | KeyReleaseMask    | FocusChangeMask | PropertyChangeMask |
+                      ResizeRedirectMask,
+    };
+
+    uint32_t x = 0, y = 0, border_width = 0;
+
+    *win = XCreateWindow(display, RootWindow(display, screen),
+                         x, y, width, height, border_width,
+                         xwin_depth, InputOutput, visual,
+                         CWBackPixmap | CWBorderPixel | CWEventMask, &attrib);
 
     // Fallback name in ISO8859-1.
     XStoreName(display, *win, "Video Preview");
